@@ -14,11 +14,9 @@ class Counter:
 
     def detected(self):
         self._append(True)
-        print(f'Frames: {self._last_frames}')
 
     def empty(self):
         self._append(False)
-        print(f'Frames: {self._last_frames}')
     
     def is_correct(self):
         counter = 0
