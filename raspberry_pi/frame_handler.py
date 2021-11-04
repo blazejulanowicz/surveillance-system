@@ -7,6 +7,10 @@ class CameraException(Exception):
 
 class FrameHandler:
 
+    @staticmethod
+    def save_frame(frame, path='tmp.jpg'):
+        cv.imwrite(path, frame)
+
     def __init__(self, video_capture: cv.VideoCapture):
         self._vc = video_capture
         self._detector = None
@@ -28,7 +32,7 @@ class FrameHandler:
         while self._is_next():
             frame = self._get_next()
             counter += 1
-            new_frame = draw_detections(self._run_detection(frame))
+            new_frame = draw_detections(*self._run_detection(frame))
             if show_fps:
                 if counter % 10 == 0:
                     end_time = time.time()
@@ -40,22 +44,31 @@ class FrameHandler:
             cv.imshow('object_detector', new_frame)
         cv.destroyAllWindows()
 
-    def alert(self, model_path, num_threads, threshold, alert_callback):
+    def alert(self, model_path, num_threads, threshold):
         self._detector = ObjectDetector(num_threads, threshold)
         self._detector.load_model(model_path)
         counter = Counter()
+        fps_counter, fps = 0, 0
+        start_time = time.time()
         while self._is_next():
             frame = self._get_next()
-            detections = self._run_detection(frame)
+            frame, detections = self._run_detection(frame)
             is_person_detected = False
             for detection in detections:
-                if detection.label == 'person' and detection.score > 0.6:
+                if detection.label == 'person' and detection.score > threshold:
                     counter.detected()
                     is_person_detected = True
                     if counter.is_correct():
-                        print('PERSON FULLY DETECTED!!!!')
+                        print('Person detected!!!')
+                        return draw_detections(frame, detections)
             if not is_person_detected:
                 counter.empty()
+            fps_counter += 1
+            if fps_counter % 20 == 0:
+                    end_time = time.time()
+                    fps = 20 / (end_time - start_time)
+                    start_time = time.time()
+                    print(fps)
 
             
     def _add_fps(self, frame, fps):
@@ -73,6 +86,6 @@ class FrameHandler:
     def _run_detection(self, frame):
         frame = cv.flip(frame, -1)
         detections = self._detector.detect(frame)
-        return detections
+        return frame, detections
 
 

@@ -3,6 +3,7 @@ import sys
 import time
 
 from frame_handler import FrameHandler
+from mailer import MailService
 import cv2 as cv
 
 def run(model, width, height, num_threads, threshold, video):
@@ -15,7 +16,12 @@ def run(model, width, height, num_threads, threshold, video):
         video_capture.set(cv.CAP_PROP_FRAME_HEIGHT, height)
 
     fh = FrameHandler(video_capture)
-    fh.alert(model, num_threads, threshold, True)
+    mailer = MailService('testmailblazej@gmail.com', 'Hom3Aut0m@tion#997', 'imnotfreeman@gmail.com')
+
+    alert_frame = fh.alert(model, num_threads, threshold)
+    FrameHandler.save_frame(alert_frame)
+    mailer.send_alert('tmp.jpg')
+
 
 
 def main():
@@ -50,7 +56,7 @@ def main():
         '--threshold',
         required=False,
         type=float,
-        default=0.5
+        default=0.6
     )
     args = parser.parse_args()
 
