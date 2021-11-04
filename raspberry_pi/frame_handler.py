@@ -1,7 +1,7 @@
 import cv2 as cv
 import time
 from detector import ObjectDetector, draw_detections
-
+from utils import Counter
 class CameraException(Exception):
     """Something went wrong with camera."""
 
@@ -28,7 +28,7 @@ class FrameHandler:
         while self._is_next():
             frame = self._get_next()
             counter += 1
-            new_frame = self._run_detection(frame)
+            new_frame = draw_detections(self._run_detection(frame))
             if show_fps:
                 if counter % 10 == 0:
                     end_time = time.time()
@@ -40,6 +40,22 @@ class FrameHandler:
             cv.imshow('object_detector', new_frame)
         cv.destroyAllWindows()
 
+    def alert(self, model_path, num_threads, threshold, alert_callback):
+        self._detector = ObjectDetector(num_threads, threshold)
+        self._detector.load_model(model_path)
+        counter = Counter()
+        while self._is_next():
+            frame = self._get_next()
+            detections = self._run_detection(frame)
+            is_person_detected = False
+            for detection in detections:
+                if detection.label == 'person' and detection.score > 0.6:
+                    counter.detected()
+                    is_person_detected = True
+                    if counter.is_correct():
+                        print('PERSON FULLY DETECTED!!!!')
+            if not is_person_detected:
+                counter.empty()
 
             
     def _add_fps(self, frame, fps):
@@ -57,6 +73,6 @@ class FrameHandler:
     def _run_detection(self, frame):
         frame = cv.flip(frame, -1)
         detections = self._detector.detect(frame)
-        return draw_detections(frame, detections)
+        return detections
 
 
