@@ -10,3 +10,18 @@ services:
       - ./backend:/code
     ports:
       - "5000:5000"
+    networks:
+      - main
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-dev
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/prod.cfg:/etc/nginx/nginx.conf:ro
+    networks:
+      - main
+
+networks:
+  main:
+    driver: bridge
