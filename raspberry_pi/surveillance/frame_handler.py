@@ -24,6 +24,15 @@ class FrameHandler:
     def _is_next(self):
         return self._vc.isOpened()
 
+    def record_raw(self, filename='output.avi', duration=30):
+
+        fourcc = cv.VideoWriter_fourcc(*'XVID')
+        out = cv.VideoWriter('output.avi',fourcc, 20.0, (800,600))
+
+        start_time = time.time()
+        while(int(time.time() - start_time) < duration and self._is_next()):
+            out.write(self._get_next())
+
     def preview(self, model_path, num_threads, threshold, show_fps=False):
         self._detector = ObjectDetector(num_threads, threshold)
         self._detector.load_model(model_path)

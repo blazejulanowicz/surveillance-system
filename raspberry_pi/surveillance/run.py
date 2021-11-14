@@ -1,12 +1,10 @@
 import argparse
-import sys
-import time
+import requests
 
 from frame_handler import FrameHandler
-from mailer import MailService
 import cv2 as cv
 
-def run(model, width, height, num_threads, threshold, video):
+def run(model, backend_url, width, height, num_threads, threshold, video):
     video_capture = None
     if video != '':
         video_capture = cv.VideoCapture(video)
@@ -16,11 +14,14 @@ def run(model, width, height, num_threads, threshold, video):
         video_capture.set(cv.CAP_PROP_FRAME_HEIGHT, height)
 
     fh = FrameHandler(video_capture)
-    mailer = MailService('testmailblazej@gmail.com', 'Hom3Aut0m@tion#997', 'imnotfreeman@gmail.com')
 
-    alert_frame = fh.alert(model, num_threads, threshold)
-    FrameHandler.save_frame(alert_frame)
-    mailer.send_alert('tmp.jpg')
+    while(True):
+        alert_frame = fh.alert(model, num_threads, threshold)
+        FrameHandler.save_frame(alert_frame)
+        with open('tmp.jpg', 'rb') as img:
+            response = requests.post(backend_url, files={'file': ('tmp.jpg', img, 'image/jpeg')})
+        # if response.text == 'true':
+        #     fh.record_raw()
 
 
 
@@ -30,6 +31,10 @@ def main():
     parser.add_argument(
         '--model',
         required=True)
+    parser.add_argument(
+        '--backend_url',
+        required=True
+    )
     parser.add_argument(
         '--video',
         required=False,
@@ -60,7 +65,7 @@ def main():
     )
     args = parser.parse_args()
 
-    run(args.model, args.frameWidth, args.frameHeight,
+    run(args.model, args.backend_url, args.frameWidth, args.frameHeight,
         int(args.numThreads), float(args.threshold), args.video)
 
 
