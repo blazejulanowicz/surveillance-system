@@ -1,0 +1,12 @@
+version: "2"
+
+services:
+  backend:
+    container_name: backend-dev
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-dev
+    volumes:
+      - ./backend:/code
+    ports:
+      - "5000:5000"
