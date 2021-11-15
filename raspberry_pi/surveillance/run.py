@@ -19,9 +19,11 @@ def run(model, backend_url, width, height, num_threads, threshold, video):
         alert_frame = fh.alert(model, num_threads, threshold)
         FrameHandler.save_frame(alert_frame)
         with open('tmp.jpg', 'rb') as img:
-            response = requests.post(backend_url, files={'file': ('tmp.jpg', img, 'image/jpeg')})
-        # if response.text == 'true':
-        #     fh.record_raw()
+            response = requests.post(f'{backend_url}/surv/detected', files={'file': ('tmp.jpg', img, 'image/jpeg')})
+        if response.text == 'true':
+            fh.record_raw()
+            with open('output.mp4', 'rb') as video:
+                requests.post(f'{backend_url}/surv/send_video', files={'file': ('output.mp4', video, 'video/x-msvideo')})
 
 
 

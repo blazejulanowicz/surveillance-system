@@ -8,6 +8,7 @@ services:
       dockerfile: Dockerfile-dev
     volumes:
       - ./backend:/code
+      - ./database_data:/code/database_data
     ports:
       - "5000:5000"
     networks:
