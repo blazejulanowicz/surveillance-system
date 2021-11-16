@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from flask import Blueprint, current_app, request
 from flask.wrappers import Response
@@ -19,19 +20,26 @@ def detected():
     mailer = MailService(conf['sender_email'], conf['sender_password'], conf['receiver_mail'])
     mailer.send_alert(img.read())
 
-    return Response(response='true', status=201)
+    response = {'armed': False}
+    if current_app.config['ALARM_ARMED'] and (datetime.datetime.now().time() >= current_app.config['ALARM_TIME'][0] and datetime.datetime.now().time() <= current_app.config['ALARM_TIME'][1]):
+        detection_id = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')
+        image_name = f'{detection_id}.jpg'
+        image_path = f'./database_data/{image_name}'
+        img.save(image_path)
+        response = {'armed': True, 'detection_id': detection_id}
+    return Response(response=json.dumps(response), status=201)
 
 @surv.route('/send_video', methods=['POST'])
 def send_video():
     try:
         video = request.files['file']
+        detection_id = request.args['detection_id']
     except KeyError:
         return Response(status=403)
-    current_date = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')
-    video_name = f'{current_date}.mp4'
+    video_name = f'{detection_id}.mp4'
     video_path = f'./database_data/{video_name}'
     video.save(video_path)
-    DatabaseHandler('./database_data/videos.db').push_video(video_name)
+    DatabaseHandler('./database_data/videos.db').push_video(detection_id)
     return Response(response='true', status=201)
     
     

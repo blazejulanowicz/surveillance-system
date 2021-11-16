@@ -12,7 +12,7 @@ class DatabaseHandler:
     def _create_table(self):
         cursor = self._con.cursor()
 
-        cursor.execute('CREATE TABLE videos (creation_date text, path text);')
+        cursor.execute('CREATE TABLE videos (creation_date text, detection_id text);')
         self._con.commit()
 
     def _execute(self, query, params):
