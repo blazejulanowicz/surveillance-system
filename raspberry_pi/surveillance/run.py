@@ -1,5 +1,6 @@
 import argparse
 import requests
+import json
 
 from frame_handler import FrameHandler
 import cv2 as cv
@@ -20,10 +21,10 @@ def run(model, backend_url, width, height, num_threads, threshold, video):
         FrameHandler.save_frame(alert_frame)
         with open('tmp.jpg', 'rb') as img:
             response = requests.post(f'{backend_url}/surv/detected', files={'file': ('tmp.jpg', img, 'image/jpeg')})
-        if response.text == 'true':
+        if response.json()['armed'] == True:
             fh.record_raw()
             with open('output.mp4', 'rb') as video:
-                requests.post(f'{backend_url}/surv/send_video', files={'file': ('output.mp4', video, 'video/x-msvideo')})
+                requests.post(f'{backend_url}/surv/send_video?detection_id={response.json()["detection_id"]}', files={'file': ('output.mp4', video, 'video/x-msvideo')})
 
 
 

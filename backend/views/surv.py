@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 
 from flask import Blueprint, current_app, request
 from flask.wrappers import Response
@@ -24,7 +25,9 @@ def detected():
     if current_app.config['ALARM_ARMED'] and (datetime.datetime.now().time() >= current_app.config['ALARM_TIME'][0] and datetime.datetime.now().time() <= current_app.config['ALARM_TIME'][1]):
         detection_id = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')
         image_name = f'{detection_id}.jpg'
-        image_path = f'./database_data/{image_name}'
+        db_path = os.path.join(current_app.root_path, current_app.config['DATABASE_PATH'])
+        image_path = f'{db_path}/{image_name}'
+        img.seek(0)
         img.save(image_path)
         response = {'armed': True, 'detection_id': detection_id}
     return Response(response=json.dumps(response), status=201)
@@ -37,9 +40,10 @@ def send_video():
     except KeyError:
         return Response(status=403)
     video_name = f'{detection_id}.mp4'
-    video_path = f'./database_data/{video_name}'
+    db_path = os.path.join(current_app.root_path, current_app.config['DATABASE_PATH'])
+    video_path = f'{db_path}/{video_name}'
     video.save(video_path)
-    DatabaseHandler('./database_data/videos.db').push_video(detection_id)
+    DatabaseHandler(db_path).push_video(detection_id)
     return Response(response='true', status=201)
     
     

@@ -4,7 +4,7 @@ import sqlite3
 class DatabaseHandler:
 
     def __init__(self, db_path) -> None:
-        self._con = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+        self._con = sqlite3.connect(f'{db_path}/videos.db', detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
 
     def __del__(self):
         self._con.close()
