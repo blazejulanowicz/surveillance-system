@@ -19,10 +19,23 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/prod.cfg:/etc/nginx/nginx.conf:ro
+      - ./nginx/dev.cfg:/etc/nginx/nginx.conf:ro
     networks:
       - main
-
+    depends_on:
+      - frontend
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    volumes:
+      - './frontend:/app/'
+      - '/app/node_modules'
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - main
 networks:
   main:
     driver: bridge
