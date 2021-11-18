@@ -27,7 +27,7 @@ class DatabaseHandler:
         self._con.commit()
 
     def push_video(self, video_path):
-        query = "INSERT INTO videos(creation_date, path) values (datetime('now'), ?);"
+        query = "INSERT INTO videos(creation_date, detection_id) values (datetime('now'), ?);"
         params = (video_path,)
         self._execute_insert(query, params)
 

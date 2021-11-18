@@ -13,16 +13,16 @@ surv = Blueprint('surv', __name__)
 
 @surv.route('/detected', methods=['POST'])
 def detected():
-    try:
-        img = request.files['file']
-    except KeyError:
-        return Response(status=403)
-    conf = current_app.config['MAIL_SERVICE']
-    mailer = MailService(conf['sender_email'], conf['sender_password'], conf['receiver_mail'])
-    mailer.send_alert(img.read())
-
     response = {'armed': False}
     if current_app.config['ALARM_ARMED'] and (datetime.datetime.now().time() >= current_app.config['ALARM_TIME'][0] and datetime.datetime.now().time() <= current_app.config['ALARM_TIME'][1]):
+        try:
+            img = request.files['file']
+        except KeyError:
+            return Response(status=403)
+        conf = current_app.config['MAIL_SERVICE']
+        mailer = MailService(conf['sender_email'], conf['sender_password'], conf['receiver_mail'])
+        mailer.send_alert(img.read())
+
         detection_id = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')
         image_name = f'{detection_id}.jpg'
         db_path = os.path.join(current_app.root_path, current_app.config['DATABASE_PATH'])

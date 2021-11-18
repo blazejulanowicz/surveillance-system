@@ -1,9 +1,12 @@
 import argparse
 import requests
-import json
+import os
 
 from frame_handler import FrameHandler
 import cv2 as cv
+
+def get_path(filename):
+    return os.path.join(os.path.abspath(os.path.dirname(__file__)), filename)
 
 def run(model, backend_url, width, height, num_threads, threshold, video):
     video_capture = None
@@ -17,13 +20,13 @@ def run(model, backend_url, width, height, num_threads, threshold, video):
     fh = FrameHandler(video_capture)
 
     while(True):
-        alert_frame = fh.alert(model, num_threads, threshold)
-        FrameHandler.save_frame(alert_frame)
-        with open('tmp.jpg', 'rb') as img:
+        alert_frame = fh.alert(get_path(model), num_threads, threshold)
+        FrameHandler.save_frame(alert_frame, get_path('tmp.jpg'))
+        with open(get_path('tmp.jpg'), 'rb') as img:
             response = requests.post(f'{backend_url}/surv/detected', files={'file': ('tmp.jpg', img, 'image/jpeg')})
         if response.json()['armed'] == True:
-            fh.record_raw()
-            with open('output.mp4', 'rb') as video:
+            fh.record_raw(get_path('output.mp4'))
+            with open(get_path('output.mp4'), 'rb') as video:
                 requests.post(f'{backend_url}/surv/send_video?detection_id={response.json()["detection_id"]}', files={'file': ('output.mp4', video, 'video/x-msvideo')})
 
 

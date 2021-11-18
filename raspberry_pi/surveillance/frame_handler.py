@@ -24,10 +24,10 @@ class FrameHandler:
     def _is_next(self):
         return self._vc.isOpened()
 
-    def record_raw(self, filename='output.mp4', duration=30):
+    def record_raw(self, path='output.mp4', duration=30):
 
         fourcc = cv.VideoWriter_fourcc(*'MP4V')
-        out = cv.VideoWriter('output.mp4',fourcc, 20.0, (800,600))
+        out = cv.VideoWriter(path, fourcc, 20.0, (800,600))
 
         start_time = time.time()
         while(int(time.time() - start_time) < duration and self._is_next()):

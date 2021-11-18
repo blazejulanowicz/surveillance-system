@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
-import { Modal, Switch, Typography, Box, IconButton, TextField, Button } from "@mui/material";
+import { Modal, Switch, Typography, Box, IconButton, TextField, Button, Divider } from "@mui/material";
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import TimePicker from '@mui/lab/TimePicker';
+import plLocale from 'date-fns/locale/pl'
 
-const SettingsModal = ({ sx, alarmState, setAlarmState}) => {
+const SettingsModal = ({ sx, alarmState, setAlarmState }) => {
 
     const [isOpen, setIsOpen] = useState(false);
     const [isArmed, setIsArmed] = useState(alarmState.status === 'armed')
@@ -37,13 +38,16 @@ const SettingsModal = ({ sx, alarmState, setAlarmState}) => {
         bgcolor: 'background.paper',
         boxShadow: 24,
         p: 4,
+        display: 'flex',
+        flexDirection: 'column',
+
     };
 
     const setNewAlarm = () => {
         setAlarmState({
             'status': isArmed ? 'armed' : 'disarmed',
-            'start_time': startTime.toLocaleTimeString(),
-            'end_time': endTime.toLocaleTimeString()
+            'start_time': startTime.toLocaleTimeString('pl-PL'),
+            'end_time': endTime.toLocaleTimeString('pl-PL')
         });
         setIsOpen(false);
     };
@@ -51,39 +55,43 @@ const SettingsModal = ({ sx, alarmState, setAlarmState}) => {
     return (
         <Box sx={sx}>
             <IconButton onClick={() => setIsOpen(true)}>
-                <SettingsApplicationsIcon />
+                <SettingsApplicationsIcon fontSize={'large'} />
             </IconButton>
             <Modal open={isOpen} onClose={() => setIsOpen(false)}>
                 <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                    <Typography id="modal-modal-title" variant="h7" component="h2" >
                         ALARM SETTINGS
                     </Typography>
-                    <Box>
+                    <Divider sx={{ marginBottom: 3 }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
                         <Typography>Alarm ARMED</Typography>
-                        <Switch checked={isArmed} onChange={(event) => setIsArmed(event.target.checked)}/>
+                        <Switch checked={isArmed} onChange={(event) => setIsArmed(event.target.checked)} />
                     </Box>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <Typography variant="h8" component="h4" >
+                        Activation settings
+                    </Typography>
+                    <Divider sx={{ marginBottom: 3 }} />
+                    <LocalizationProvider dateAdapter={AdapterDateFns} locale={plLocale}>
                         <TimePicker
                             label="Start time"
                             value={startTime}
                             onChange={(newValue) => {
                                 setStartTime(newValue);
                             }}
-                            renderInput={(params) => <TextField {...params} />}
+                            renderInput={(params) => <TextField sx={{ marginBottom: 3 }} {...params} />}
                         />
                     </LocalizationProvider>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} locale={plLocale}>
                         <TimePicker
                             label="End time"
                             value={endTime}
                             onChange={(newValue) => {
-                                console.log(newValue);
                                 setEndTime(newValue);
                             }}
-                            renderInput={(params) => <TextField {...params} />}
+                            renderInput={(params) => <TextField sx={{ marginBottom: 3 }} {...params} />}
                         />
                     </LocalizationProvider>
-                    <Button onClick={setNewAlarm}>OK</Button>
+                    <Button onClick={setNewAlarm} variant="contained">UPDATE ALARM</Button>
                 </Box>
             </Modal>
         </Box>
