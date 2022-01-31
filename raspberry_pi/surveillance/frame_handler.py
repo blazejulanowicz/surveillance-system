@@ -54,31 +54,23 @@ class FrameHandler:
             cv.imshow('object_detector', new_frame)
         cv.destroyAllWindows()
 
-    def alert(self, model_path, num_threads, threshold):
+    def alert(self, model_path, num_threads, threshold, label='person'):
         self._detector = ObjectDetector(num_threads, threshold)
         self._detector.load_model(model_path)
         counter = Counter()
-        fps_counter, fps = 0, 0
-        start_time = time.time()
         while self._is_next():
             frame = self._get_next()
             frame, detections = self._run_detection(frame)
             is_person_detected = False
             for detection in detections:
-                if detection.label == 'person' and detection.score > threshold:
+                if detection.label == label and detection.score > threshold:
                     counter.detected()
                     is_person_detected = True
                     if counter.is_correct():
-                        print('Person detected!!!')
                         return draw_detections(frame, detections)
+                    break
             if not is_person_detected:
                 counter.empty()
-            fps_counter += 1
-            if fps_counter % 20 == 0:
-                    end_time = time.time()
-                    fps = 20 / (end_time - start_time)
-                    start_time = time.time()
-                    print(fps)
 
             
     def _add_fps(self, frame, fps):

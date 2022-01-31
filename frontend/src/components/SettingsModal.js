@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
-import { Modal, Switch, Typography, Box, IconButton, TextField, Button, Divider } from "@mui/material";
+import { Modal, Switch, Typography, Box, IconButton, TextField, Button, Divider, Input } from "@mui/material";
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import TimePicker from '@mui/lab/TimePicker';
@@ -66,6 +66,10 @@ const SettingsModal = ({ sx, alarmState, setAlarmState }) => {
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
                         <Typography>Alarm ARMED</Typography>
                         <Switch checked={isArmed} onChange={(event) => setIsArmed(event.target.checked)} />
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
+                        <Typography>Receiver's email</Typography>
+                        <Input />
                     </Box>
                     <Typography variant="h8" component="h4" >
                         Activation settings

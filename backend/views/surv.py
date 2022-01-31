@@ -18,7 +18,7 @@ def detected():
         try:
             img = request.files['file']
         except KeyError:
-            return Response(status=403)
+            return Response(status=400)
         conf = current_app.config['MAIL_SERVICE']
         mailer = MailService(conf['sender_email'], conf['sender_password'], conf['receiver_mail'])
         mailer.send_alert(img.read())
@@ -30,7 +30,7 @@ def detected():
         img.seek(0)
         img.save(image_path)
         response = {'armed': True, 'detection_id': detection_id}
-    return Response(response=json.dumps(response), status=201)
+    return Response(response=json.dumps(response), status=200)
 
 @surv.route('/send_video', methods=['POST'])
 def send_video():
@@ -38,12 +38,14 @@ def send_video():
         video = request.files['file']
         detection_id = request.args['detection_id']
     except KeyError:
-        return Response(status=403)
+        return Response(status=400)
     video_name = f'{detection_id}.mp4'
     db_path = os.path.join(current_app.root_path, current_app.config['DATABASE_PATH'])
+    if os.path.exists(f'{db_path}/{detection_id}.jpg'):
+        return Response(status=404)
     video_path = f'{db_path}/{video_name}'
     video.save(video_path)
-    DatabaseHandler(db_path).push_video(detection_id)
+    DatabaseHandler(db_path).push_detection(detection_id)
     return Response(response='true', status=201)
     
     
